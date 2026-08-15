@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  background: #050509;
-  color: #ffffff;
-  color-scheme: dark;
+  --void: #050509;
+  --violet: #9b7cff;
+  --cyan: #4deeea;
+  --lime: #b7ff4a;
 }
 
 * {
@@ -11,41 +12,18 @@
 }
 
 html {
-  min-height: 100%;
-  background: #050509;
+  background: var(--void);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(
-      circle at 50% -20%,
-      rgba(155, 124, 255, 0.1),
-      transparent 35%
-    ),
-    #050509;
-  color: #ffffff;
+  background: var(--void);
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-button,
-input,
-textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-::selection {
-  background: rgba(155, 124, 255, 0.35);
-  color: #ffffff;
-}
-
-/* Constellation grid */
-
+/* Subtle constellation grid */
 .grid-pattern {
   background-image:
     linear-gradient(
@@ -57,64 +35,81 @@ button {
       rgba(255, 255, 255, 0.025) 1px,
       transparent 1px
     );
-  background-size: 48px 48px;
-  mask-image: radial-gradient(
-    circle at center,
-    black,
-    transparent 85%
-  );
+
+  background-size: 42px 42px;
 }
 
-/* Ambient stars */
-
+/* Ambient star field */
 .stars {
   position: absolute;
   inset: 0;
   opacity: 0.35;
   background-image:
-    radial-gradient(circle, #ffffff 0.7px, transparent 0.8px),
-    radial-gradient(circle, #9b7cff 0.6px, transparent 0.7px);
-  background-size: 97px 113px, 151px 173px;
-  animation: drift 30s linear infinite;
-}
+    radial-gradient(
+      1px 1px at 20% 30%,
+      rgba(255, 255, 255, 0.5),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 70% 20%,
+      rgba(155, 124, 255, 0.7),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 40% 80%,
+      rgba(77, 238, 234, 0.5),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 85% 70%,
+      rgba(183, 255, 74, 0.5),
+      transparent
+    );
 
-@keyframes drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: translate3d(-80px, 40px, 0);
-  }
+  background-size:
+    280px 280px,
+    360px 360px,
+    420px 420px,
+    500px 500px;
 }
 
 /* Soft node pulse */
-
 .node-pulse {
-  animation: nodePulse 3s ease-in-out infinite;
+  animation: node-pulse 3s ease-in-out infinite;
 }
 
-@keyframes nodePulse {
+@keyframes node-pulse {
   0%,
   100% {
-    opacity: 0.7;
+    opacity: 0.65;
     transform: scale(1);
   }
 
   50% {
     opacity: 1;
-    transform: scale(1.2);
+    transform: scale(1.25);
   }
 }
 
-/* Reduced motion accessibility */
-
+/* Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .grid-pattern {
+    background-size: 32px 32px;
+  }
+
+  .stars {
+    opacity: 0.2;
   }
 }
