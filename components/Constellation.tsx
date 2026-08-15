@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Node = {
+  id: number;
   x: number;
   y: number;
   vx: number;
@@ -16,6 +17,14 @@ const COLORS = ["#9b7cff", "#4deeea", "#b7ff4a"];
 export default function Constellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const [selectedNode, setSelectedNode] = useState<number | null>(null);
+
+  const nodesRef = useRef<Node[]>([]);
+  const mouseRef = useRef({
+    x: -1000,
+    y: -1000,
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,12 +40,7 @@ export default function Constellation() {
     let width = 0;
     let height = 0;
 
-    const mouse = {
-      x: -1000,
-      y: -1000,
-    };
-
-    const nodes: Node[] = [];
+    const mouse = mouseRef.current;
 
     const resize = () => {
       const rect = container.getBoundingClientRect();
@@ -44,7 +48,10 @@ export default function Constellation() {
       width = rect.width;
       height = rect.height;
 
-      const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const devicePixelRatio = Math.min(
+        window.devicePixelRatio || 1,
+        2
+      );
 
       canvas.width = width * devicePixelRatio;
       canvas.height = height * devicePixelRatio;
@@ -63,7 +70,7 @@ export default function Constellation() {
     };
 
     const createNodes = () => {
-      nodes.length = 0;
+      nodesRef.current = [];
 
       const count = Math.min(
         45,
@@ -71,7 +78,8 @@ export default function Constellation() {
       );
 
       for (let i = 0; i < count; i++) {
-        nodes.push({
+        nodesRef.current.push({
+          id: i,
           x: Math.random() * width,
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.18,
@@ -84,6 +92,8 @@ export default function Constellation() {
 
     const draw = () => {
       context.clearRect(0, 0, width, height);
+
+      const nodes = nodesRef.current;
 
       for (const node of nodes) {
         node.x += node.vx;
@@ -115,7 +125,10 @@ export default function Constellation() {
 
           const dx = a.x - b.x;
           const dy = a.y - b.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          const distance = Math.sqrt(
+            dx * dx + dy * dy
+          );
 
           if (distance < 125) {
             const opacity = 1 - distance / 125;
@@ -136,20 +149,46 @@ export default function Constellation() {
 
       // Nodes
       for (const node of nodes) {
+        const isSelected = node.id === selectedNode;
+        const isNearMouse =
+          Math.hypot(
+            mouse.x - node.x,
+            mouse.y - node.y
+          ) < 90;
+
         context.beginPath();
+
         context.arc(
           node.x,
           node.y,
-          node.radius,
+          isSelected ? node.radius + 3 : node.radius,
           0,
           Math.PI * 2
         );
 
         context.fillStyle = node.color;
         context.shadowColor = node.color;
-        context.shadowBlur = 14;
+
+        context.shadowBlur =
+          isSelected || isNearMouse ? 25 : 12;
 
         context.fill();
+
+        if (isSelected) {
+          context.beginPath();
+
+          context.arc(
+            node.x,
+            node.y,
+            node.radius + 9,
+            0,
+            Math.PI * 2
+          );
+
+          context.strokeStyle = `${node.color}66`;
+          context.lineWidth = 1;
+          context.stroke();
+        }
 
         context.shadowBlur = 0;
       }
@@ -169,36 +208,100 @@ export default function Constellation() {
       mouse.y = -1000;
     };
 
+    const handleClick = (event: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+
+      let closestNode: Node | null = null;
+      let closestDistance = Infinity;
+
+      for (const node of nodesRef.current) {
+        const distance = Math.hypot(
+          clickX - node.x,
+          clickY - node.y
+        );
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestNode = node;
+        }
+      }
+
+      if (closestNode && closestDistance < 25) {
+        setSelectedNode(closestNode.id);
+      } else {
+        setSelectedNode(null);
+      }
+    };
+
     resize();
     createNodes();
     draw();
 
     window.addEventListener("resize", resize);
-    container.addEventListener("mousemove", handleMouseMove);
-    container.addEventListener("mouseleave", handleMouseLeave);
+
+    container.addEventListener(
+      "mousemove",
+      handleMouseMove
+    );
+
+    container.addEventListener(
+      "mouseleave",
+      handleMouseLeave
+    );
+
+    container.addEventListener(
+      "click",
+      handleClick
+    );
 
     return () => {
       cancelAnimationFrame(animationFrame);
 
       window.removeEventListener("resize", resize);
+
       container.removeEventListener(
         "mousemove",
         handleMouseMove
       );
+
       container.removeEventListener(
         "mouseleave",
         handleMouseLeave
       );
+
+      container.removeEventListener(
+        "click",
+        handleClick
+      );
     };
-  }, []);
+  }, [selectedNode]);
 
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 overflow-hidden"
-      aria-hidden="true"
+      className="absolute inset-0 cursor-crosshair overflow-hidden"
+      aria-label="Interactive idea constellation"
+      role="application"
     >
-      <canvas ref={canvasRef} className="absolute inset-0" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0"
+      />
+
+      {selectedNode !== null && (
+        <div className="pointer-events-none absolute bottom-5 right-5 rounded-lg border border-white/10 bg-black/50 px-4 py-3 backdrop-blur-md">
+          <p className="font-mono text-[9px] tracking-[0.25em] text-white/30">
+            SELECTED NODE
+          </p>
+
+          <p className="mt-1 font-mono text-xs text-violet-300">
+            NODE // {String(selectedNode + 1).padStart(2, "0")}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
