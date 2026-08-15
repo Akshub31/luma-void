@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Constellation from "@/components/Constellation";
 
 type Note = {
   title: string;
@@ -40,8 +41,11 @@ export default function Home() {
       {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute left-[10%] top-[10%] h-96 w-96 rounded-full bg-violet-600/10 blur-[140px]" />
+
         <div className="absolute right-[5%] top-[35%] h-80 w-80 rounded-full bg-cyan-400/10 blur-[130px]" />
+
         <div className="absolute bottom-[-10%] left-[35%] h-96 w-96 rounded-full bg-lime-400/5 blur-[150px]" />
+
         <div className="stars" />
       </div>
 
@@ -80,7 +84,7 @@ export default function Home() {
           </div>
         </aside>
 
-        {/* Main content */}
+        {/* Main */}
         <section className="flex-1 px-5 py-6 sm:px-8 lg:px-12">
           {/* Header */}
           <header className="flex items-start justify-between gap-6">
@@ -105,57 +109,20 @@ export default function Home() {
             </button>
           </header>
 
-          {/* Constellation */}
+          {/* Interactive Constellation */}
           <section
-            aria-label="Idea constellation"
+            aria-label="Interactive idea constellation"
             className="relative mt-10 h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.015]"
           >
             <div className="absolute inset-0 grid-pattern" />
 
-            {/* Connection lines */}
-            <svg
-              className="absolute inset-0 h-full w-full"
-              aria-hidden="true"
-            >
-              <line
-                x1="22%"
-                y1="30%"
-                x2="40%"
-                y2="20%"
-                stroke="rgba(155,124,255,.25)"
-              />
+            <Constellation />
 
-              <line
-                x1="40%"
-                y1="20%"
-                x2="58%"
-                y2="52%"
-                stroke="rgba(77,238,234,.2)"
-              />
-
-              <line
-                x1="58%"
-                y1="52%"
-                x2="76%"
-                y2="34%"
-                stroke="rgba(183,255,74,.2)"
-              />
-            </svg>
-
-            {/* Nodes */}
-            <div className="node-pulse absolute left-[22%] top-[30%] h-3 w-3 rounded-full bg-violet-400 shadow-[0_0_30px_8px_rgba(155,124,255,.35)]" />
-
-            <div className="node-pulse absolute left-[40%] top-[20%] h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_25px_6px_rgba(77,238,234,.3)]" />
-
-            <div className="node-pulse absolute left-[58%] top-[52%] h-4 w-4 rounded-full bg-lime-300 shadow-[0_0_35px_10px_rgba(183,255,74,.25)]" />
-
-            <div className="node-pulse absolute left-[76%] top-[34%] h-2 w-2 rounded-full bg-violet-300 shadow-[0_0_25px_6px_rgba(155,124,255,.3)]" />
-
-            <div className="absolute bottom-5 left-5 font-mono text-[9px] tracking-[0.25em] text-white/25">
-              04 NODES // 03 CONNECTIONS
+            <div className="pointer-events-none absolute bottom-5 left-5 font-mono text-[9px] tracking-[0.25em] text-white/25">
+              LIVE CONSTELLATION
             </div>
 
-            <div className="absolute right-5 top-5 font-mono text-[9px] tracking-[0.25em] text-white/25">
+            <div className="pointer-events-none absolute right-5 top-5 font-mono text-[9px] tracking-[0.25em] text-white/25">
               LIVE
               <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-lime-300 shadow-[0_0_10px_2px_rgba(183,255,74,.5)]" />
             </div>
@@ -175,12 +142,14 @@ export default function Home() {
                   {stat.label}
                 </p>
 
-                <p className="mt-2 text-2xl font-light">{stat.value}</p>
+                <p className="mt-2 text-2xl font-light">
+                  {stat.value}
+                </p>
               </div>
             ))}
           </section>
 
-          {/* Recent notes */}
+          {/* Recent signals */}
           <section className="mt-12">
             <div className="mb-5 flex items-center justify-between">
               <p className="font-mono text-[10px] tracking-[0.3em] text-white/30">
