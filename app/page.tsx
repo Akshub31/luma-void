@@ -2,6 +2,7 @@
 
 import Constellation from "@/components/Constellation";
 import DashboardCard from "@/components/DashboardCard";
+import DashboardSidebar from "@/components/DashboardSidebar";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
         <header className="flex h-16 items-center justify-between border-b border-white/10 bg-black/20 px-6 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+
             <span className="text-sm font-semibold tracking-[0.3em]">
               LUMA//VOID
             </span>
@@ -46,47 +48,27 @@ export default function Home() {
               </p>
             </div>
 
+            {/* Dashboard cards */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
-                <p className="text-xs uppercase tracking-widest text-white/40">
-                  Nodes
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-white">--</p>
-              </div>
+              <DashboardCard
+                label="Nodes"
+                value="--"
+                accent="cyan"
+              />
 
-              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
-                <p className="text-xs uppercase tracking-widest text-white/40">
-                  Status
-                </p>
-                <p className="mt-2 text-sm font-medium text-emerald-400">
-                  ONLINE
-                </p>
-              </div>
+              <DashboardCard
+                label="Status"
+                value="ONLINE"
+                accent="lime"
+              />
             </div>
           </div>
 
-          {/* Sidebar */}
-          <aside className="rounded-2xl border border-white/10 bg-black/20 p-6 backdrop-blur-xl">
-            <p className="text-xs uppercase tracking-[0.25em] text-violet-400/70">
-              System
-            </p>
-
-            <h2 className="mt-2 text-lg font-semibold text-white">
-              Dashboard
-            </h2>
-
-            <div className="mt-6 space-y-3">
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
-                <span className="text-xs text-white/40">Connection</span>
-                <p className="mt-1 text-sm text-white">Stable</p>
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
-                <span className="text-xs text-white/40">Environment</span>
-                <p className="mt-1 text-sm text-white">Development</p>
-              </div>
-            </div>
-          </aside>
+          {/* Dashboard sidebar */}
+          <DashboardSidebar
+            connection="Stable"
+            environment="Development"
+          />
         </section>
       </div>
     </main>
