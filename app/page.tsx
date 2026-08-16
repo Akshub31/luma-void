@@ -1,206 +1,91 @@
 "use client";
 
-import { useState } from "react";
 import Constellation from "@/components/Constellation";
 
-type Note = {
-  title: string;
-  tag: string;
-  color: string;
-};
-
-const stats = [
-  { label: "IDEAS", value: "24" },
-  { label: "CONNECTIONS", value: "61" },
-  { label: "ACTIVE", value: "07" },
-];
-
-const notes: Note[] = [
-  {
-    title: "The shape of unfinished ideas",
-    tag: "THOUGHT",
-    color: "#9b7cff",
-  },
-  {
-    title: "Build interfaces that feel alive",
-    tag: "DESIGN",
-    color: "#4deeea",
-  },
-  {
-    title: "A garden should grow, not organize",
-    tag: "CONCEPT",
-    color: "#b7ff4a",
-  },
-];
-
 export default function Home() {
-  const [active, setActive] = useState("VOID");
-
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050509] text-white">
-      {/* Ambient background */}
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute left-[10%] top-[10%] h-96 w-96 rounded-full bg-violet-600/10 blur-[140px]" />
-
-        <div className="absolute right-[5%] top-[35%] h-80 w-80 rounded-full bg-cyan-400/10 blur-[130px]" />
-
-        <div className="absolute bottom-[-10%] left-[35%] h-96 w-96 rounded-full bg-lime-400/5 blur-[150px]" />
-
-        <div className="stars" />
+    <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
+      {/* Animated constellation background */}
+      <div className="fixed inset-0 -z-10">
+        <Constellation />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-[1600px]">
-        {/* Sidebar */}
-        <aside className="hidden w-64 shrink-0 border-r border-white/10 p-6 lg:block">
-          <div className="mb-16">
-            <p className="font-mono text-[10px] tracking-[0.35em] text-white/30">
-              DIGITAL GARDEN
-            </p>
-
-            <h1 className="mt-2 text-xl font-semibold tracking-[-0.04em]">
-              LUMA<span className="text-violet-400">//</span>VOID
-            </h1>
+      {/* Dashboard */}
+      <div className="relative z-10 min-h-screen">
+        {/* Header */}
+        <header className="flex h-16 items-center justify-between border-b border-white/10 bg-black/20 px-6 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+            <span className="text-sm font-semibold tracking-[0.3em]">
+              LUMA//VOID
+            </span>
           </div>
 
-          <nav className="space-y-2" aria-label="Main navigation">
-            {["VOID", "IDEAS", "NOTES", "ARCHIVE"].map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setActive(item)}
-                className={`w-full rounded-lg px-3 py-2 text-left font-mono text-xs tracking-widest transition ${
-                  active === item
-                    ? "bg-white/10 text-white"
-                    : "text-white/35 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-
-          <div className="absolute bottom-6 font-mono text-[9px] tracking-widest text-white/20">
-            SYSTEM // 001
+          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+            Dashboard
           </div>
-        </aside>
+        </header>
 
-        {/* Main */}
-        <section className="flex-1 px-5 py-6 sm:px-8 lg:px-12">
-          {/* Header */}
-          <header className="flex items-start justify-between gap-6">
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] text-white/30">
-                {active} / OVERVIEW
+        {/* Main dashboard area */}
+        <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl grid-cols-1 gap-6 p-6 lg:grid-cols-[1fr_320px]">
+          {/* Main panel */}
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-6 backdrop-blur-xl">
+            <div className="mb-8">
+              <p className="text-xs uppercase tracking-[0.25em] text-cyan-400/70">
+                Neural Interface
               </p>
 
-              <h2 className="mt-2 text-3xl font-medium tracking-[-0.05em] sm:text-5xl">
-                Your universe,
-                <br />
-                still forming.
-              </h2>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+                Welcome to the Void
+              </h1>
+
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/50">
+                Explore the constellation and discover connected nodes across
+                your LUMA//VOID workspace.
+              </p>
             </div>
 
-            <button
-              type="button"
-              className="group shrink-0 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-mono text-[10px] tracking-widest transition hover:border-violet-400/50 hover:bg-violet-400/10"
-            >
-              <span className="mr-2 text-violet-400">+</span>
-              NEW IDEA
-            </button>
-          </header>
-
-          {/* Interactive Constellation */}
-          <section
-            aria-label="Interactive idea constellation"
-            className="relative mt-10 h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.015]"
-          >
-            <div className="absolute inset-0 grid-pattern" />
-
-            <Constellation />
-
-            <div className="pointer-events-none absolute bottom-5 left-5 font-mono text-[9px] tracking-[0.25em] text-white/25">
-              LIVE CONSTELLATION
-            </div>
-
-            <div className="pointer-events-none absolute right-5 top-5 font-mono text-[9px] tracking-[0.25em] text-white/25">
-              LIVE
-              <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-lime-300 shadow-[0_0_10px_2px_rgba(183,255,74,.5)]" />
-            </div>
-          </section>
-
-          {/* Statistics */}
-          <section
-            aria-label="Statistics"
-            className="mt-6 grid grid-cols-3 gap-3"
-          >
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-xl border border-white/10 bg-white/[0.025] p-4"
-              >
-                <p className="font-mono text-[9px] tracking-widest text-white/30">
-                  {stat.label}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-xs uppercase tracking-widest text-white/40">
+                  Nodes
                 </p>
+                <p className="mt-2 text-2xl font-semibold text-white">--</p>
+              </div>
 
-                <p className="mt-2 text-2xl font-light">
-                  {stat.value}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-xs uppercase tracking-widest text-white/40">
+                  Status
+                </p>
+                <p className="mt-2 text-sm font-medium text-emerald-400">
+                  ONLINE
                 </p>
               </div>
-            ))}
-          </section>
-
-          {/* Recent signals */}
-          <section className="mt-12">
-            <div className="mb-5 flex items-center justify-between">
-              <p className="font-mono text-[10px] tracking-[0.3em] text-white/30">
-                RECENT SIGNALS
-              </p>
-
-              <button
-                type="button"
-                className="font-mono text-[9px] tracking-widest text-white/30 transition hover:text-white"
-              >
-                VIEW ALL →
-              </button>
             </div>
+          </div>
 
-            <div className="grid gap-3 md:grid-cols-3">
-              {notes.map((note) => (
-                <article
-                  key={note.title}
-                  className="group rounded-xl border border-white/10 bg-white/[0.025] p-5 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.045]"
-                >
-                  <div
-                    className="mb-10 h-1 w-8 rounded-full"
-                    style={{
-                      backgroundColor: note.color,
-                      boxShadow: `0 0 15px ${note.color}`,
-                    }}
-                  />
-
-                  <p className="font-mono text-[9px] tracking-[0.25em] text-white/30">
-                    {note.tag}
-                  </p>
-
-                  <h3 className="mt-3 text-lg leading-snug tracking-[-0.025em] text-white/90">
-                    {note.title}
-                  </h3>
-
-                  <div className="mt-8 flex justify-between font-mono text-[9px] text-white/20">
-                    <span>NODE</span>
-                    <span>→</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="mt-16 border-t border-white/10 py-6">
-            <p className="font-mono text-[9px] tracking-[0.25em] text-white/20">
-              LUMA//VOID — AN OPEN DIGITAL GARDEN
+          {/* Sidebar */}
+          <aside className="rounded-2xl border border-white/10 bg-black/20 p-6 backdrop-blur-xl">
+            <p className="text-xs uppercase tracking-[0.25em] text-violet-400/70">
+              System
             </p>
-          </footer>
+
+            <h2 className="mt-2 text-lg font-semibold text-white">
+              Dashboard
+            </h2>
+
+            <div className="mt-6 space-y-3">
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+                <span className="text-xs text-white/40">Connection</span>
+                <p className="mt-1 text-sm text-white">Stable</p>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+                <span className="text-xs text-white/40">Environment</span>
+                <p className="mt-1 text-sm text-white">Development</p>
+              </div>
+            </div>
+          </aside>
         </section>
       </div>
     </main>
