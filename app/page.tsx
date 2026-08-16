@@ -2,6 +2,7 @@
 
 import Constellation from "@/components/Constellation";
 import DashboardCard from "@/components/DashboardCard";
+import DashboardNav from "@/components/DashboardNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
 
 export default function Home() {
@@ -24,9 +25,7 @@ export default function Home() {
             </span>
           </div>
 
-          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-            Dashboard
-          </div>
+          <DashboardNav />
         </header>
 
         {/* Main dashboard area */}
