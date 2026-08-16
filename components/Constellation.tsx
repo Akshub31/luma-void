@@ -1,119 +1,117 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type Node = {
-  id: number;
   x: number;
   y: number;
   vx: number;
   vy: number;
   radius: number;
+  phase: number;
   color: string;
 };
 
-const COLORS = ["#9b7cff", "#4deeea", "#b7ff4a"];
+const COLORS = [
+  "rgba(34, 211, 238, 0.9)",
+  "rgba(167, 139, 250, 0.9)",
+  "rgba(163, 230, 53, 0.8)",
+];
 
 export default function Constellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const [selectedNode, setSelectedNode] = useState<number | null>(null);
-
-  const nodesRef = useRef<Node[]>([]);
-  const mouseRef = useRef({
-    x: -1000,
-    y: -1000,
-  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
 
-    if (!canvas || !container) return;
+    if (!canvas) return;
 
-    const context = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
-    if (!context) return;
+    if (!ctx) return;
 
     let animationFrame = 0;
     let width = 0;
     let height = 0;
+    let dpr = 1;
 
-    const mouse = mouseRef.current;
-
-    const resize = () => {
-      const rect = container.getBoundingClientRect();
-
-      width = rect.width;
-      height = rect.height;
-
-      const devicePixelRatio = Math.min(
-        window.devicePixelRatio || 1,
-        2
-      );
-
-      canvas.width = width * devicePixelRatio;
-      canvas.height = height * devicePixelRatio;
-
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-
-      context.setTransform(
-        devicePixelRatio,
-        0,
-        0,
-        devicePixelRatio,
-        0,
-        0
-      );
+    const mouse = {
+      x: -1000,
+      y: -1000,
     };
 
+    const nodes: Node[] = [];
+
     const createNodes = () => {
-      nodesRef.current = [];
+      nodes.length = 0;
 
       const count = Math.min(
-        45,
-        Math.max(18, Math.floor(width / 22))
+        55,
+        Math.max(24, Math.floor((width * height) / 18000))
       );
 
       for (let i = 0; i < count; i++) {
-        nodesRef.current.push({
-          id: i,
+        nodes.push({
           x: Math.random() * width,
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.18,
           vy: (Math.random() - 0.5) * 0.18,
-          radius: Math.random() * 2 + 1,
+          radius: Math.random() * 1.6 + 1,
+          phase: Math.random() * Math.PI * 2,
           color: COLORS[i % COLORS.length],
         });
       }
     };
 
-    const draw = () => {
-      context.clearRect(0, 0, width, height);
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
 
-      const nodes = nodesRef.current;
+      width = rect.width;
+      height = rect.height;
+
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      createNodes();
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      mouse.x = event.clientX;
+      mouse.y = event.clientY;
+    };
+
+    const handlePointerLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    const draw = (time: number) => {
+      ctx.clearRect(0, 0, width, height);
+
+      const seconds = time * 0.001;
 
       for (const node of nodes) {
         node.x += node.vx;
         node.y += node.vy;
 
-        if (node.x < 0 || node.x > width) {
-          node.vx *= -1;
-        }
-
-        if (node.y < 0 || node.y > height) {
-          node.vy *= -1;
-        }
+        if (node.x < -20) node.x = width + 20;
+        if (node.x > width + 20) node.x = -20;
+        if (node.y < -20) node.y = height + 20;
+        if (node.y > height + 20) node.y = -20;
 
         const dx = mouse.x - node.x;
         const dy = mouse.y - node.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 120) {
-          node.x -= dx * 0.0008;
-          node.y -= dy * 0.0008;
+        if (distance < 160 && distance > 0) {
+          const force = (160 - distance) / 160;
+
+          node.x -= (dx / distance) * force * 0.12;
+          node.y -= (dy / distance) * force * 0.12;
         }
       }
 
@@ -125,183 +123,97 @@ export default function Constellation() {
 
           const dx = a.x - b.x;
           const dy = a.y - b.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
 
-          const distance = Math.sqrt(
-            dx * dx + dy * dy
-          );
+          const maxDistance = 145;
 
-          if (distance < 125) {
-            const opacity = 1 - distance / 125;
+          if (distance < maxDistance) {
+            const opacity =
+              (1 - distance / maxDistance) * 0.28;
 
-            context.beginPath();
-            context.moveTo(a.x, a.y);
-            context.lineTo(b.x, b.y);
+            const gradient = ctx.createLinearGradient(
+              a.x,
+              a.y,
+              b.x,
+              b.y
+            );
 
-            context.strokeStyle = `rgba(155, 124, 255, ${
-              opacity * 0.18
-            })`;
+            gradient.addColorStop(
+              0,
+              a.color.replace("0.9", `${opacity}`)
+            );
 
-            context.lineWidth = 1;
-            context.stroke();
+            gradient.addColorStop(
+              1,
+              b.color.replace("0.9", `${opacity}`)
+            );
+
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
           }
         }
       }
 
       // Nodes
       for (const node of nodes) {
-        const isSelected = node.id === selectedNode;
-        const isNearMouse =
-          Math.hypot(
-            mouse.x - node.x,
-            mouse.y - node.y
-          ) < 90;
+        const pulse =
+          Math.sin(seconds * 1.5 + node.phase) * 0.35 + 0.65;
 
-        context.beginPath();
+        const radius = node.radius * pulse;
 
-        context.arc(
+        const glow = ctx.createRadialGradient(
           node.x,
           node.y,
-          isSelected ? node.radius + 3 : node.radius,
           0,
-          Math.PI * 2
+          node.x,
+          node.y,
+          radius * 7
         );
 
-        context.fillStyle = node.color;
-        context.shadowColor = node.color;
+        glow.addColorStop(0, node.color);
+        glow.addColorStop(1, "rgba(0, 0, 0, 0)");
 
-        context.shadowBlur =
-          isSelected || isNearMouse ? 25 : 12;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius * 7, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
 
-        context.fill();
-
-        if (isSelected) {
-          context.beginPath();
-
-          context.arc(
-            node.x,
-            node.y,
-            node.radius + 9,
-            0,
-            Math.PI * 2
-          );
-
-          context.strokeStyle = `${node.color}66`;
-          context.lineWidth = 1;
-          context.stroke();
-        }
-
-        context.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = node.color;
+        ctx.fill();
       }
 
       animationFrame = requestAnimationFrame(draw);
     };
 
-    const handleMouseMove = (event: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-
-      mouse.x = event.clientX - rect.left;
-      mouse.y = event.clientY - rect.top;
-    };
-
-    const handleMouseLeave = () => {
-      mouse.x = -1000;
-      mouse.y = -1000;
-    };
-
-    const handleClick = (event: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-
-      const clickX = event.clientX - rect.left;
-      const clickY = event.clientY - rect.top;
-
-      let closestNode: Node | null = null;
-      let closestDistance = Infinity;
-
-      for (const node of nodesRef.current) {
-        const distance = Math.hypot(
-          clickX - node.x,
-          clickY - node.y
-        );
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestNode = node;
-        }
-      }
-
-      if (closestNode && closestDistance < 25) {
-        setSelectedNode(closestNode.id);
-      } else {
-        setSelectedNode(null);
-      }
-    };
-
     resize();
-    createNodes();
-    draw();
 
     window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerleave", handlePointerLeave);
 
-    container.addEventListener(
-      "mousemove",
-      handleMouseMove
-    );
-
-    container.addEventListener(
-      "mouseleave",
-      handleMouseLeave
-    );
-
-    container.addEventListener(
-      "click",
-      handleClick
-    );
+    animationFrame = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(animationFrame);
 
       window.removeEventListener("resize", resize);
-
-      container.removeEventListener(
-        "mousemove",
-        handleMouseMove
-      );
-
-      container.removeEventListener(
-        "mouseleave",
-        handleMouseLeave
-      );
-
-      container.removeEventListener(
-        "click",
-        handleClick
-      );
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", handlePointerLeave);
     };
-  }, [selectedNode]);
+  }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute inset-0 cursor-crosshair overflow-hidden"
-      aria-label="Interactive idea constellation"
-      role="application"
-    >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0"
-      />
-
-      {selectedNode !== null && (
-        <div className="pointer-events-none absolute bottom-5 right-5 rounded-lg border border-white/10 bg-black/50 px-4 py-3 backdrop-blur-md">
-          <p className="font-mono text-[9px] tracking-[0.25em] text-white/30">
-            SELECTED NODE
-          </p>
-
-          <p className="mt-1 font-mono text-xs text-violet-300">
-            NODE // {String(selectedNode + 1).padStart(2, "0")}
-          </p>
-        </div>
-      )}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 h-full w-full"
+      aria-hidden="true"
+    />
   );
 }
