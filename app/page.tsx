@@ -1,6 +1,7 @@
 "use client";
 
 import Constellation from "@/components/Constellation";
+import DashboardCard from "@/components/DashboardCard";
 
 export default function Home() {
   return (
